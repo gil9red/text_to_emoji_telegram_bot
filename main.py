@@ -11,6 +11,7 @@ import sys
 # pip install python-telegram-bot
 from telegram import Update
 from telegram.ext import Updater, MessageHandler, CommandHandler, Filters, CallbackContext
+from telegram.ext.defaults import Defaults
 
 from config import TOKEN, DIR
 from common import get_logger, log_func, reply_error
@@ -24,7 +25,9 @@ log = get_logger(__file__)
 
 @log_func(log)
 def on_start(update: Update, context: CallbackContext):
-    update.message.reply_text(
+    message = update.effective_message
+
+    message.reply_text(
         'Просто пришли боту текст и он попробует сконвертировать в нем слова в эмодзи'
     )
 
@@ -46,20 +49,20 @@ def on_error(update: Update, context: CallbackContext):
 def main():
     cpu_count = os.cpu_count()
     workers = cpu_count
-    log.debug('System: CPU_COUNT=%s, WORKERS=%s', cpu_count, workers)
+    log.debug(f'System: CPU_COUNT={cpu_count}, WORKERS={workers}')
 
     log.debug('Start')
 
     updater = Updater(
         TOKEN,
         workers=workers,
-        use_context=True
+        defaults=Defaults(run_async=True),
     )
 
     dp = updater.dispatcher
 
-    dp.add_handler(CommandHandler('start', on_start, run_async=True))
-    dp.add_handler(MessageHandler(Filters.text, on_request, run_async=True))
+    dp.add_handler(CommandHandler('start', on_start))
+    dp.add_handler(MessageHandler(Filters.text, on_request))
 
     dp.add_error_handler(on_error)
 
