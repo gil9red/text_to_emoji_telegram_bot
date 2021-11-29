@@ -46,17 +46,19 @@ def on_error(update: Update, context: CallbackContext):
 
 
 def main():
+    log.debug('Start')
+
     cpu_count = os.cpu_count()
     workers = cpu_count
     log.debug(f'System: CPU_COUNT={cpu_count}, WORKERS={workers}')
-
-    log.debug('Start')
 
     updater = Updater(
         TOKEN,
         workers=workers,
         defaults=Defaults(run_async=True),
     )
+    bot = updater.bot
+    log.debug(f'Bot name {bot.first_name!r} ({bot.name})')
 
     dp = updater.dispatcher
 
